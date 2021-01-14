@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1610635169492" clover="3.2.0">
-  <project timestamp="1610635169493" name="All files">
-    <metrics statements="139" coveredstatements="14" conditionals="34" coveredconditionals="0" methods="20" coveredmethods="2" elements="193" coveredelements="16" complexity="0" loc="139" ncloc="139" packages="3" files="3" classes="3"/>
+<coverage generated="1610635936430" clover="3.2.0">
+  <project timestamp="1610635936430" name="All files">
+    <metrics statements="139" coveredstatements="20" conditionals="34" coveredconditionals="0" methods="20" coveredmethods="3" elements="193" coveredelements="23" complexity="0" loc="139" ncloc="139" packages="3" files="3" classes="3"/>
     <package name="jwt">
       <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
       <file name="jwt.service.ts" path="/Users/1100628/study/nestjs-unit-testing/src/jwt/jwt.service.ts">
@@ -16,29 +16,29 @@
       </file>
     </package>
     <package name="podcast">
-      <metrics statements="93" coveredstatements="14" conditionals="24" coveredconditionals="0" methods="12" coveredmethods="2"/>
+      <metrics statements="93" coveredstatements="20" conditionals="24" coveredconditionals="0" methods="12" coveredmethods="3"/>
       <file name="podcasts.service.ts" path="/Users/1100628/study/nestjs-unit-testing/src/podcast/podcasts.service.ts">
-        <metrics statements="93" coveredstatements="14" conditionals="24" coveredconditionals="0" methods="12" coveredmethods="2"/>
+        <metrics statements="93" coveredstatements="20" conditionals="24" coveredconditionals="0" methods="12" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
         <line num="12" count="1" type="stmt"/>
         <line num="13" count="1" type="stmt"/>
         <line num="22" count="1" type="stmt"/>
         <line num="23" count="1" type="stmt"/>
         <line num="26" count="1" type="stmt"/>
-        <line num="29" count="3" type="stmt"/>
-        <line num="31" count="3" type="stmt"/>
-        <line num="34" count="3" type="stmt"/>
+        <line num="29" count="5" type="stmt"/>
+        <line num="31" count="5" type="stmt"/>
+        <line num="34" count="5" type="stmt"/>
         <line num="40" count="2" type="stmt"/>
         <line num="41" count="2" type="stmt"/>
         <line num="42" count="1" type="stmt"/>
         <line num="47" count="1" type="stmt"/>
         <line num="48" count="1" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
-        <line num="57" count="0" type="stmt"/>
-        <line num="58" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
+        <line num="56" count="2" type="stmt"/>
+        <line num="57" count="2" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
         <line num="70" count="0" type="stmt"/>
         <line num="71" count="0" type="stmt"/>
         <line num="75" count="0" type="cond" truecount="0" falsecount="2"/>
