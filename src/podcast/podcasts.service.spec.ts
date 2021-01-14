@@ -11,6 +11,7 @@ const mockRepository = {
   find: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
+  delete: jest.fn(),
 };
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
@@ -43,6 +44,10 @@ describe('PodcastService', () => {
     episodeRepository = modules.get<MockRepository<Episode>>(
       getRepositoryToken(Episode),
     );
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('service be defined', () => {
@@ -140,6 +145,115 @@ describe('PodcastService', () => {
       });
 
       const result = await podcastService.getPodcast(1);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(serverErrorText);
+      expect(console.log).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('deletePodcast', () => {
+    it('should delete success if exist', async () => {
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({ ok: true });
+
+      const result = await podcastService.deletePodcast(1);
+
+      expect(podcastService.getPodcast).toHaveBeenCalledTimes(1);
+      expect(podcastService.getPodcast).toHaveBeenCalledWith(1);
+      expect(podcastRepository.delete).toHaveBeenCalledTimes(1);
+      expect(podcastRepository.delete).toHaveBeenCalledWith({ id: 1 });
+      expect(result.ok).toBeTruthy();
+    });
+
+    it('should delete fail if not exist', async () => {
+      jest
+        .spyOn(podcastService, 'getPodcast')
+        .mockResolvedValue({ ok: false, error: 'not exist' });
+
+      const result = await podcastService.deletePodcast(1);
+
+      expect(podcastRepository.delete).not.toHaveBeenCalledTimes(1);
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe('not exist');
+    });
+
+    it('should return error when accure exception', async () => {
+      jest.spyOn(console, 'log');
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({ ok: true });
+      podcastRepository.delete.mockImplementation(() => {
+        throw Error();
+      });
+
+      const result = await podcastService.deletePodcast(1);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(serverErrorText);
+      expect(console.log).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('updatePodcast', () => {
+    const updatePodcast = {
+      id: 1,
+      payload: { title: 'update', category: 'category', rating: 5 },
+    };
+
+    it('should success update podcast', async () => {
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({
+        ok: true,
+        podcast: { id: 1, title: 'some', category: 'thing', rating: 2 } as any,
+      });
+
+      const result = await podcastService.updatePodcast(updatePodcast);
+
+      expect(podcastService.getPodcast).toHaveBeenCalledTimes(1);
+      expect(podcastService.getPodcast).toHaveBeenCalledWith(1);
+      expect(podcastRepository.save).toHaveBeenCalledTimes(1);
+      expect(podcastRepository.save).toHaveBeenCalledWith({
+        id: 1,
+        ...updatePodcast.payload,
+      });
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should delete fail if not exist', async () => {
+      jest
+        .spyOn(podcastService, 'getPodcast')
+        .mockResolvedValue({ ok: false, error: 'not exist' });
+
+      const result = await podcastService.updatePodcast(updatePodcast);
+
+      expect(podcastRepository.save).not.toHaveBeenCalledTimes(1);
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe('not exist');
+    });
+
+    it('should return error when rating is over range', async () => {
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({
+        ok: true,
+        podcast: { id: 1, title: 'some', category: 'thing', rating: 2 } as any,
+      });
+      const { id, payload } = updatePodcast;
+
+      const result = await podcastService.updatePodcast({
+        id,
+        payload: { ...payload, rating: 5.1 },
+      });
+
+      expect(podcastRepository.save).not.toHaveBeenCalledTimes(1);
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe('Rating must be between 1 and 5.');
+    });
+
+    it('should return error when accure exception', async () => {
+      jest.spyOn(console, 'log');
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({ ok: true });
+      podcastRepository.save.mockImplementation(() => {
+        throw Error();
+      });
+
+      const result = await podcastService.updatePodcast(updatePodcast);
 
       expect(result.ok).toBeFalsy();
       expect(result.error).toBe(serverErrorText);
