@@ -304,4 +304,73 @@ describe('PodcastService', () => {
       expect(result.error).toBe(serverErrorText);
     });
   });
+
+  describe('getEpisode', () => {
+    it('should return episode', async () => {
+      const episodesResult = { ok: true, episodes: allEpisode as any };
+      const episodeFind = jest.spyOn(episodesResult.episodes, 'find');
+      jest
+        .spyOn(podcastService, 'getEpisodes')
+        .mockResolvedValue(episodesResult);
+
+      const result = await podcastService.getEpisode({
+        podcastId: 1,
+        episodeId: 3,
+      });
+
+      expect(podcastService.getEpisodes).toHaveBeenCalledTimes(1);
+      expect(podcastService.getEpisodes).toHaveBeenCalledWith(1);
+      expect(episodeFind).toHaveBeenCalledTimes(1);
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+      expect(result.episode).toEqual(allEpisode[0]);
+    });
+
+    it('should return error if podcast is not exist', async () => {
+      const error = 'podcast is not exist';
+      jest
+        .spyOn(podcastService, 'getEpisodes')
+        .mockResolvedValue({ ok: false, error });
+
+      const result = await podcastService.getEpisode({
+        podcastId: 1,
+        episodeId: 3,
+      });
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(error);
+      expect(result.episode).toBeUndefined();
+    });
+
+    it('should return error when episode is not exist', async () => {
+      const episodesResult = { ok: true, episodes: allEpisode as any };
+      jest.spyOn(episodesResult.episodes, 'find').mockReturnValue(null);
+      jest
+        .spyOn(podcastService, 'getEpisodes')
+        .mockResolvedValue(episodesResult);
+      const result = await podcastService.getEpisode({
+        podcastId: 1,
+        episodeId: 1,
+      });
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(
+        'Episode with id 1 not found in podcast with id 1',
+      );
+    });
+
+    it('should return error when accure exception', async () => {
+      jest.spyOn(podcastService, 'getEpisodes').mockImplementation(() => {
+        throw Error();
+      });
+
+      const result = await podcastService.getEpisode({
+        podcastId: 1,
+        episodeId: 1,
+      });
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(serverErrorText);
+    });
+  });
 });
