@@ -11,6 +11,7 @@ const mockRepository = {
   create: jest.fn(),
   save: jest.fn(),
   delete: jest.fn(),
+  findOneOrFail: jest.fn(),
 };
 
 const mockJwtService = {
@@ -102,7 +103,89 @@ describe('UsersService', () => {
     });
   });
 
-  it.todo('login');
-  it.todo('findById');
+  describe('login', () => {
+    const loginInput = {
+      email: 'ttt@ttt.com',
+      password: '123',
+    };
+
+    it('should success login when correct value', async () => {
+      const mockUser = {
+        id: 1,
+        checkPassword: jest.fn(() => Promise.resolve(true)),
+      };
+      userRepository.findOne.mockResolvedValue(mockUser);
+
+      const result = await userService.login(loginInput);
+
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOne).toHaveBeenCalledWith(
+        { email: loginInput.email },
+        expect.any(Object),
+      );
+
+      expect(mockUser.checkPassword).toHaveBeenCalledTimes(1);
+      expect(mockUser.checkPassword).toHaveBeenCalledWith(loginInput.password);
+
+      expect(jwtService.sign).toHaveBeenCalledTimes(1);
+      expect(jwtService.sign).toHaveBeenCalledWith(1);
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+      expect(result.token).toEqual(expect.any(String));
+    });
+
+    it('should return error if user is not exist', async () => {
+      userRepository.findOne.mockResolvedValue(null);
+
+      const result = await userService.login(loginInput);
+
+      expect(jwtService.sign).not.toHaveBeenCalledTimes(1);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.token).toBeUndefined();
+      expect(result.error).toBe('User not found');
+    });
+
+    it('should return error if password is not correct', async () => {
+      const mockUser = {
+        id: 1,
+        checkPassword: jest.fn(() => Promise.resolve(false)),
+      };
+      userRepository.findOne.mockResolvedValue(mockUser);
+
+      const result = await userService.login(loginInput);
+
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOne).toHaveBeenCalledWith(
+        { email: loginInput.email },
+        expect.any(Object),
+      );
+
+      expect(mockUser.checkPassword).toHaveBeenCalledTimes(1);
+      expect(mockUser.checkPassword).toHaveBeenCalledWith(loginInput.password);
+
+      expect(jwtService.sign).not.toHaveBeenCalledTimes(1);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.token).toBeUndefined();
+      expect(result.error).toBe('Wrong password');
+    });
+
+    it('should return exception error if raise error', async () => {
+      userRepository.findOne.mockImplementation(() => {
+        throw Error('exception error');
+      });
+
+      const result = await userService.login(loginInput);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toEqual(Error('exception error'));
+    });
+  });
+
+  describe('findById', () => {
+    it('should return user', async () => {});
+  });
   it.todo('editProfile');
 });
