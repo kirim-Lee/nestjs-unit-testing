@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1610686751461" clover="3.2.0">
-  <project timestamp="1610686751461" name="All files">
-    <metrics statements="46" coveredstatements="0" conditionals="10" coveredconditionals="0" methods="8" coveredmethods="0" elements="64" coveredelements="0" complexity="0" loc="46" ncloc="46" packages="2" files="2" classes="2"/>
+<coverage generated="1610697604666" clover="3.2.0">
+  <project timestamp="1610697604666" name="All files">
+    <metrics statements="46" coveredstatements="7" conditionals="10" coveredconditionals="0" methods="8" coveredmethods="3" elements="64" coveredelements="10" complexity="0" loc="46" ncloc="46" packages="2" files="2" classes="2"/>
     <package name="jwt">
-      <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
       <file name="jwt.service.ts" path="/Users/1100628/study/nestjs-unit-testing/src/jwt/jwt.service.ts">
-        <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-        <line num="2" count="0" type="stmt"/>
-        <line num="4" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
       </file>
     </package>
     <package name="users">

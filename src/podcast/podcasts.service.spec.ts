@@ -1,9 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { async, asyncScheduler } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Episode } from './entities/episode.entity';
-
 import { Podcast } from './entities/podcast.entity';
 import { PodcastsService } from './podcasts.service';
 
@@ -16,18 +14,6 @@ const mockRepository = {
 };
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
-
-const allPodcast = [
-  { id: 1, title: 'abc', category: 'sf' },
-  { id: 2, title: 'bcd', category: 'sf' },
-];
-
-const allEpisode = [
-  { id: 3, title: 'epi1', category: 'fs' },
-  { id: 4, title: 'epi2', category: 'fs' },
-];
-
-const serverErrorText = 'Internal server error occurred.';
 
 describe('PodcastService', () => {
   let podcastService: PodcastsService;
@@ -59,6 +45,18 @@ describe('PodcastService', () => {
   it('service be defined', () => {
     expect(podcastService).toBeDefined();
   });
+
+  const serverErrorText = 'Internal server error occurred.';
+
+  const allPodcast = [
+    { id: 1, title: 'abc', category: 'sf' },
+    { id: 2, title: 'bcd', category: 'sf' },
+  ];
+
+  const allEpisode = [
+    { id: 3, title: 'epi1', category: 'fs' },
+    { id: 4, title: 'epi2', category: 'fs' },
+  ];
 
   describe('getAllPodcasts', () => {
     it('should return all podcasts', async () => {
@@ -212,6 +210,7 @@ describe('PodcastService', () => {
 
       const result = await podcastService.updatePodcast(updatePodcast);
 
+      expect(updatePodcast.payload['rating']).toEqual(expect.any(Number));
       expect(podcastService.getPodcast).toHaveBeenCalledTimes(1);
       expect(podcastService.getPodcast).toHaveBeenCalledWith(1);
       expect(podcastRepository.save).toHaveBeenCalledTimes(1);
@@ -219,6 +218,22 @@ describe('PodcastService', () => {
         id: 1,
         ...updatePodcast.payload,
       });
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should success update rating undefined', async () => {
+      const withoutRatingPayload = { title: 'update', category: 'category' };
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({
+        ok: true,
+        podcast: { id: 1, title: 'some', category: 'thing', rating: 2 } as any,
+      });
+      const result = await podcastService.updatePodcast({
+        id: 1,
+        payload: withoutRatingPayload,
+      });
+
+      expect(withoutRatingPayload['rating']).toBeUndefined();
       expect(result.ok).toBeTruthy();
       expect(result.error).toBeUndefined();
     });
