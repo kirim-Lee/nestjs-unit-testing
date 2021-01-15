@@ -185,7 +185,38 @@ describe('UsersService', () => {
   });
 
   describe('findById', () => {
-    it('should return user', async () => {});
+    it('should return user', async () => {
+      const returnUser = { id: 1, email: 'some@some.com' };
+      userRepository.findOneOrFail.mockResolvedValue(returnUser);
+
+      const result = await userService.findById(1);
+
+      expect(userRepository.findOneOrFail).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOneOrFail).toHaveBeenCalledWith({ id: 1 });
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+      expect(result.user).toEqual(returnUser);
+    });
+
+    it('should return null user', async () => {
+      userRepository.findOneOrFail.mockResolvedValue(null);
+
+      const result = await userService.findById(1);
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+      expect(result.user).toEqual(null);
+    });
+
+    it('should return exception error if raise error', async () => {
+      userRepository.findOneOrFail.mockRejectedValue('any');
+
+      const result = await userService.findById(1);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe('User Not Found');
+    });
   });
   it.todo('editProfile');
 });
