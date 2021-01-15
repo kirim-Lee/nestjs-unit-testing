@@ -432,6 +432,52 @@ describe('PodcastService', () => {
     });
   });
 
-  it.todo('deleteEpisode');
+  describe('deleteEpisode', () => {
+    const deleteInput = { podcastId: 1, episodeId: 3 };
+
+    it('should success delete ', async () => {
+      episodeRepository.delete.mockResolvedValue(true);
+
+      jest
+        .spyOn(podcastService, 'getEpisode')
+        .mockResolvedValue({ ok: true, episode: { id: 3 } as any });
+
+      const result = await podcastService.deleteEpisode(deleteInput);
+
+      expect(podcastService.getEpisode).toHaveBeenCalledTimes(1);
+      expect(podcastService.getEpisode).toHaveBeenCalledWith(deleteInput);
+
+      expect(episodeRepository.delete).toHaveBeenCalledTimes(1);
+      expect(episodeRepository.delete).toHaveBeenCalledWith({
+        id: 3,
+      });
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should return error if episode is not exist ', async () => {
+      const error = 'episode is not exist';
+
+      jest
+        .spyOn(podcastService, 'getEpisode')
+        .mockResolvedValue({ ok: false, error });
+      const result = await podcastService.deleteEpisode(deleteInput);
+
+      expect(episodeRepository.delete).not.toHaveBeenCalledTimes(1);
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(error);
+    });
+
+    it('should return error when accure exception', async () => {
+      jest.spyOn(podcastService, 'getEpisode').mockImplementation(() => {
+        throw Error();
+      });
+      const result = await podcastService.deleteEpisode(deleteInput);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(serverErrorText);
+    });
+  });
   it.todo('updateEpisode');
 });
