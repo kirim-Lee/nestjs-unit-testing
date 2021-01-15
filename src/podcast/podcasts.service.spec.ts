@@ -21,6 +21,11 @@ const allPodcast = [
   { id: 2, title: 'bcd', category: 'sf' },
 ];
 
+const allEpisode = [
+  { id: 3, title: 'epi1', category: 'fs' },
+  { id: 4, title: 'epi2', category: 'fs' },
+];
+
 const serverErrorText = 'Internal server error occurred.';
 
 describe('PodcastService', () => {
@@ -258,6 +263,45 @@ describe('PodcastService', () => {
       expect(result.ok).toBeFalsy();
       expect(result.error).toBe(serverErrorText);
       expect(console.log).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getEpisodes', () => {
+    it('should return all episodes', async () => {
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({
+        ok: true,
+        podcast: { episodes: allEpisode } as any,
+      });
+
+      const result = await podcastService.getEpisodes(1);
+
+      expect(podcastService.getPodcast).toHaveBeenCalledTimes(1);
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+      expect(result.episodes).toEqual(allEpisode);
+    });
+
+    it('should return error if podcast is not exist', async () => {
+      const error = 'podcast is not exist';
+      jest.spyOn(podcastService, 'getPodcast').mockResolvedValue({
+        ok: false,
+        error,
+      });
+
+      const result = await podcastService.getEpisodes(1);
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(error);
+      expect(result.episodes).toBeUndefined();
+    });
+
+    it('should return error when accure exception', async () => {
+      jest.spyOn(podcastService, 'getPodcast').mockImplementation(() => {
+        throw Error();
+      });
+      const result = await podcastService.getEpisodes(1);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(serverErrorText);
     });
   });
 });
