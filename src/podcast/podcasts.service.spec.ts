@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { async } from 'rxjs';
+import { async, asyncScheduler } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Episode } from './entities/episode.entity';
 
@@ -479,5 +479,56 @@ describe('PodcastService', () => {
       expect(result.error).toBe(serverErrorText);
     });
   });
-  it.todo('updateEpisode');
+
+  describe('updateEpisode', () => {
+    const payload = {
+      title: 'episode title',
+      category: ' episode category',
+    };
+    const ids = { podcastId: 1, episodeId: 3 };
+    const updateInput = { ...ids, ...payload };
+
+    it('should success update', async () => {
+      jest
+        .spyOn(podcastService, 'getEpisode')
+        .mockResolvedValue({ ok: true, episode: {} as any });
+
+      episodeRepository.save.mockResolvedValue(true);
+
+      const result = await podcastService.updateEpisode(updateInput);
+
+      expect(podcastService.getEpisode).toHaveBeenCalledTimes(1);
+      expect(podcastService.getEpisode).toHaveBeenCalledWith(ids);
+
+      expect(episodeRepository.save).toHaveBeenCalledTimes(1);
+      expect(episodeRepository.save).toHaveBeenCalledWith(payload);
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+    });
+
+    it('shoud return error if episode is not exist', async () => {
+      const error = 'episode is not exist';
+
+      jest
+        .spyOn(podcastService, 'getEpisode')
+        .mockResolvedValue({ ok: false, error });
+
+      const result = await podcastService.updateEpisode(updateInput);
+
+      expect(episodeRepository.save).not.toHaveBeenCalledTimes(1);
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(error);
+    });
+
+    it('should return error when accure exception', async () => {
+      jest.spyOn(podcastService, 'getEpisode').mockImplementation(() => {
+        throw Error();
+      });
+      const result = await podcastService.updateEpisode(updateInput);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(serverErrorText);
+    });
+  });
 });
