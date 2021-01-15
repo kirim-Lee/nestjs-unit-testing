@@ -218,5 +218,49 @@ describe('UsersService', () => {
       expect(result.error).toBe('User Not Found');
     });
   });
-  it.todo('editProfile');
+
+  describe('editProfile', () => {
+    const updateProfile = {
+      email: 'update@com.com',
+      password: '12345',
+    };
+    it('should update user', async () => {
+      userRepository.findOne.mockResolvedValue({ id: 1 });
+      const result = await userService.editProfile(1, updateProfile);
+
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOne).toHaveBeenCalledWith(1);
+
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith({
+        ...updateProfile,
+        id: 1,
+      });
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should update not email nor not password', async () => {
+      userRepository.findOne.mockResolvedValue({ id: 1 });
+      const result = await userService.editProfile(1, {});
+
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOne).toHaveBeenCalledWith(1);
+
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith({ id: 1 });
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should error user not exist', async () => {
+      userRepository.findOne.mockResolvedValue(null);
+      const result = await userService.editProfile(1, updateProfile);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe('Could not update profile');
+    });
+  });
 });
