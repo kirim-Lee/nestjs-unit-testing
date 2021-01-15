@@ -180,8 +180,12 @@ export class PodcastsService {
       if (!ok) {
         return { ok, error };
       }
-      const newEpisode = this.episodeRepository.create({ title, category });
-      newEpisode.podcast = podcast;
+      const newEpisode = this.episodeRepository.create({
+        title,
+        category,
+        podcast,
+      });
+
       const { id } = await this.episodeRepository.save(newEpisode);
       return {
         ok: true,

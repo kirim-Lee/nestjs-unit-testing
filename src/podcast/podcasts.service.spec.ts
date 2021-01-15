@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { async } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Episode } from './entities/episode.entity';
 
@@ -373,4 +374,64 @@ describe('PodcastService', () => {
       expect(result.error).toBe(serverErrorText);
     });
   });
+
+  describe('createEpisode', () => {
+    const payload = { title: 'episode title', category: ' episode category' };
+    const createEpisodeInput = {
+      podcastId: 1,
+      ...payload,
+    };
+
+    it('should create episode', async () => {
+      jest
+        .spyOn(podcastService, 'getPodcast')
+        .mockResolvedValue({ ok: true, podcast: allPodcast[0] as any });
+      episodeRepository.create.mockReturnValue(payload);
+      episodeRepository.save.mockResolvedValue({ id: 5 });
+
+      const result = await podcastService.createEpisode(createEpisodeInput);
+
+      expect(podcastService.getPodcast).toHaveBeenCalledTimes(1);
+      expect(podcastService.getPodcast).toHaveBeenCalledWith(1);
+
+      expect(episodeRepository.create).toHaveBeenCalledTimes(1);
+      expect(episodeRepository.create).toHaveBeenCalledWith({
+        ...payload,
+        podcast: allPodcast[0],
+      });
+
+      expect(episodeRepository.save).toHaveBeenCalledTimes(1);
+      expect(episodeRepository.save).toHaveBeenCalledWith(payload);
+
+      expect(result.ok).toBeTruthy();
+      expect(result.error).toBeUndefined();
+      expect(result.id).toBe(5);
+    });
+
+    it('shoud return error if podcast is not exist', async () => {
+      const error = 'podcast is not exist';
+      jest
+        .spyOn(podcastService, 'getPodcast')
+        .mockResolvedValue({ ok: false, error });
+
+      const result = await podcastService.createEpisode(createEpisodeInput);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.id).toBeUndefined();
+      expect(result.error).toBe(error);
+    });
+
+    it('should return error when accure exception', async () => {
+      jest.spyOn(podcastService, 'getPodcast').mockImplementation(() => {
+        throw Error();
+      });
+      const result = await podcastService.createEpisode(createEpisodeInput);
+
+      expect(result.ok).toBeFalsy();
+      expect(result.error).toBe(serverErrorText);
+    });
+  });
+
+  it.todo('deleteEpisode');
+  it.todo('updateEpisode');
 });
